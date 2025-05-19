@@ -1,25 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <title>Print Preview</title>
   <style>
-    /* your styles */
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
   </style>
 </head>
 <body>
-  <h1>Print Preview</h1>
-  <div id="content"></div>
+
+  <h1>Variation Summary</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Location</th>
+        <th>SOR Rejected</th>
+        <th>Qty Rejected</th>
+        <th>SOR Added</th>
+        <th>Qty Added</th>
+        <th>Reason</th>
+      </tr>
+    </thead>
+    <tbody id="printData">
+      <!-- Data will be injected here -->
+    </tbody>
+  </table>
 
   <script>
-    window.addEventListener('message', event => {
+    window.addEventListener('message', function(event) {
       try {
         const data = JSON.parse(event.data);
-        const contentDiv = document.getElementById('content');
-        contentDiv.textContent = JSON.stringify(data, null, 2);
-        // You can add more formatting & printing logic here
+        const tbody = document.getElementById('printData');
+        tbody.innerHTML = ''; // Clear existing rows
+
+        data.forEach(item => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${item.location}</td>
+            <td>${item.sorRejected}</td>
+            <td>${item.qtyRejected}</td>
+            <td>${item.sorAdded}</td>
+            <td>${item.qtyAdded}</td>
+            <td>${item.reason}</td>
+          `;
+          tbody.appendChild(row);
+        });
       } catch (e) {
-        console.error('Invalid data received', e);
+        console.error("Error parsing message:", e);
       }
     });
   </script>
+
 </body>
 </html>
