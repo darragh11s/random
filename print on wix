@@ -1,70 +1,43 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Print Preview</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
-    }
-    th {
-      background-color: #f4f4f4;
-    }
-  </style>
-</head>
-<body>
+class PrintCustomElement extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.shadowRoot.innerHTML = `
+      <style>
+        /* Your print styles here */
+      </style>
+      <div id="container"></div>
+    `;
+  }
 
-  <h1>Variation Summary</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Location</th>
-        <th>SOR Rejected</th>
-        <th>Qty Rejected</th>
-        <th>SOR Added</th>
-        <th>Qty Added</th>
-        <th>Reason</th>
-      </tr>
-    </thead>
-    <tbody id="printData">
-      <!-- Data will be injected here -->
-    </tbody>
-  </table>
+  set data(value) {
+    this._data = value;
+    this.renderData(value);
+  }
 
-  <script>
-    window.addEventListener('message', function(event) {
-      try {
-        const data = JSON.parse(event.data);
-        const tbody = document.getElementById('printData');
-        tbody.innerHTML = ''; // Clear existing rows
+  renderData(data) {
+    const container = this.shadowRoot.getElementById('container');
+    container.innerHTML = '';
 
-        data.forEach(item => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${item.location}</td>
-            <td>${item.sorRejected}</td>
-            <td>${item.qtyRejected}</td>
-            <td>${item.sorAdded}</td>
-            <td>${item.qtyAdded}</td>
-            <td>${item.reason}</td>
-          `;
-          tbody.appendChild(row);
-        });
-      } catch (e) {
-        console.error("Error parsing message:", e);
-      }
+    if (!Array.isArray(data)) {
+      container.innerHTML = '<p>No data to display</p>';
+      return;
+    }
+
+    data.forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.innerHTML = `
+        <p><strong>Location:</strong> ${item.location}</p>
+        <p><strong>SOR Rejected:</strong> ${item.sorRejected}</p>
+        <p><strong>Qty Rejected:</strong> ${item.qtyRejected}</p>
+        <p><strong>SOR Added:</strong> ${item.sorAdded}</p>
+        <p><strong>Qty Added:</strong> ${item.qtyAdded}</p>
+        <p><strong>Reason:</strong> ${item.reason}</p>
+        <hr>
+      `;
+      container.appendChild(itemDiv);
     });
-  </script>
+  }
+}
 
-</body>
-</html>
+customElements.define('print-custom-element', PrintCustomElement);
