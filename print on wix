@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    /* your styles */
+  </style>
+</head>
+<body>
+  <h1>Print Preview</h1>
+  <div id="content"></div>
+
+  <script>
+    window.addEventListener('message', event => {
+      try {
+        const data = JSON.parse(event.data);
+        const contentDiv = document.getElementById('content');
+        contentDiv.textContent = JSON.stringify(data, null, 2);
+        // You can add more formatting & printing logic here
+      } catch (e) {
+        console.error('Invalid data received', e);
+      }
+    });
+  </script>
+</body>
+</html>
