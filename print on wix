@@ -2,41 +2,57 @@ class PrintCustomElement extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot.innerHTML = `
-      <style>
-        /* Your print styles here */
-      </style>
-      <div id="container"></div>
-    `;
+    this._data = [];
   }
 
   set data(value) {
     this._data = value;
-    this.renderData(value);
+    this.render();
   }
 
-  renderData(data) {
-    const container = this.shadowRoot.getElementById('container');
-    container.innerHTML = '';
+  render() {
+    const container = document.createElement('div');
+    container.style.fontFamily = 'Arial, sans-serif';
 
-    if (!Array.isArray(data)) {
-      container.innerHTML = '<p>No data to display</p>';
-      return;
+    if (!this._data || this._data.length === 0) {
+      container.textContent = 'No data to print.';
+    } else {
+      const table = document.createElement('table');
+      table.border = '1';
+      table.style.borderCollapse = 'collapse';
+      table.style.width = '100%';
+
+      // Header row
+      const headerRow = document.createElement('tr');
+      ['Location', 'SOR Rejected', 'Qty Rejected', 'SOR Added', 'Qty Added', 'Reason'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        th.style.padding = '8px';
+        th.style.backgroundColor = '#ddd';
+        headerRow.appendChild(th);
+      });
+      table.appendChild(headerRow);
+
+      // Data rows
+      this._data.forEach(item => {
+        const tr = document.createElement('tr');
+
+        ['location', 'sorRejected', 'qtyRejected', 'sorAdded', 'qtyAdded', 'reason'].forEach(key => {
+          const td = document.createElement('td');
+          td.textContent = item[key] || '';
+          td.style.padding = '8px';
+          tr.appendChild(td);
+        });
+
+        table.appendChild(tr);
+      });
+
+      container.appendChild(table);
     }
 
-    data.forEach(item => {
-      const itemDiv = document.createElement('div');
-      itemDiv.innerHTML = `
-        <p><strong>Location:</strong> ${item.location}</p>
-        <p><strong>SOR Rejected:</strong> ${item.sorRejected}</p>
-        <p><strong>Qty Rejected:</strong> ${item.qtyRejected}</p>
-        <p><strong>SOR Added:</strong> ${item.sorAdded}</p>
-        <p><strong>Qty Added:</strong> ${item.qtyAdded}</p>
-        <p><strong>Reason:</strong> ${item.reason}</p>
-        <hr>
-      `;
-      container.appendChild(itemDiv);
-    });
+    // Clear previous content and append new
+    this.shadowRoot.innerHTML = '';
+    this.shadowRoot.appendChild(container);
   }
 }
 
